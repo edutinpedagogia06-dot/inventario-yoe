@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jasy Inventario</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:    #FAF8F3;
+      --cream-2:  #F2EDE3;
+      --cream-3:  #E8E0D0;
+      --ink:      #1A1410;
+      --ink-2:    #3D3428;
+      --ink-3:    #7A6E60;
+      --ink-4:    #B0A595;
+      --gold:     #B8884A;
+      --gold-2:   #D4A55E;
+      --gold-bg:  #FDF5E6;
+      --rose:     #C4727A;
+      --rose-bg:  #FDEDEF;
+      --green:    #5A8A6A;
+      --green-bg: #EDF6F0;
+      --blue:     #4A72A0;
+      --blue-bg:  #EBF2FA;
+      --danger:   #C0392B;
+      --danger-bg:#FDEDEC;
+      --shadow:   0 2px 12px rgba(26,20,16,.07), 0 1px 3px rgba(26,20,16,.05);
+      --shadow-lg:0 8px 32px rgba(26,20,16,.12), 0 2px 8px rgba(26,20,16,.06);
+      --radius:   10px;
+      --radius-lg:16px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* ─── SIDEBAR ─── */
+    .layout { display: flex; min-height: 100vh; }
+
+    .sidebar {
+      width: 230px;
+      flex-shrink: 0;
+      background: var(--ink);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 50;
+      transition: transform .25s ease;
+    }
+
+    .sidebar-brand {
+      padding: 28px 24px 20px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .brand-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -.3px;
+    }
+
+    .brand-sub {
+      font-size: 10px;
+      color: var(--gold-2);
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      margin-top: 2px;
+    }
+
+    .sidebar-nav { padding: 16px 12px; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: var(--radius);
+      color: rgba(255,255,255,.55);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      transition: all .15s;
+    }
+
+    .nav-item:hover { background: rgba(255,255,255,.07); color: rgba(255,255,255,.85); }
+
+    .nav-item.active {
+      background: var(--gold);
+      color: #fff;
+    }
+
+    .nav-icon { width: 20px; height: 20px; opacity: .8; flex-shrink: 0; }
+    .nav-item.active .nav-icon { opacity: 1; }
+
+    .sidebar-footer {
+      padding: 16px 24px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      font-size: 11px;
+      color: rgba(255,255,255,.25);
+    }
+
+    /* ─── MAIN ─── */
+    .main {
+      margin-left: 230px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      background: var(--cream);
+      border-bottom: 1px solid var(--cream-3);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .topbar-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    .topbar-date {
+      font-size: 12px;
+      color: var(--ink-3);
+    }
+
+    .content { padding: 28px 32px; flex: 1; }
+
+    /* ─── SECTIONS ─── */
+    .section { display: none; flex-direction: column; gap: 24px; }
+    .section.active { display: flex; }
+
+    /* ─── METRIC CARDS ─── */
+    .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+
+    .mc {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--cream-3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mc::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--cream-3);
+    }
+
+    .mc.accent::before { background: var(--gold); }
+    .mc.success::before { background: var(--green); }
+    .mc.danger::before { background: var(--rose); }
+    .mc.info::before { background: var(--blue); }
+
+    .mc-icon {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 14px;
+      font-size: 17px;
+    }
+
+    .mc-icon.gold { background: var(--gold-bg); }
+    .mc-icon.green { background: var(--green-bg); }
+    .mc-icon.rose { background: var(--rose-bg); }
+    .mc-icon.blue { background: var(--blue-bg); }
+
+    .mc-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--ink-4);
+      margin-bottom: 4px;
+    }
+
+    .mc-value {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--ink);
+      letter-spacing: -.5px;
+    }
+
+    .mc-value.gold { color: var(--gold); }
+    .mc-value.green { color: var(--green); }
+    .mc-value.rose { color: var(--rose); }
+    .mc-value.blue { color: var(--blue); }
+    .mc-value.danger { color: var(--danger); }
+
+    /* ─── CARD ─── */
+    .card {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--cream-3);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--cream-3);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fff;
+    }
+
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    .card-sub {
+      font-size: 11px;
+      color: var(--ink-4);
+    }
+
+    /* ─── FORM ─── */
+    .form-section-label {
+      padding: 10px 22px 6px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: var(--gold-bg);
+      border-bottom: 1px solid #F0E4C8;
+    }
+
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; padding: 18px 22px; }
+
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+
+    label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ink-3);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    input[type=text], input[type=number], select {
+      padding: 9px 12px;
+      border: 1.5px solid var(--cream-3);
+      border-radius: var(--radius);
+      background: var(--cream);
+      color: var(--ink);
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      width: 100%;
+      transition: border-color .15s, box-shadow .15s;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(184,136,74,.12);
+      background: #fff;
+    }
+
+    input::placeholder { color: var(--ink-4); }
+
+    .form-actions {
+      padding: 14px 22px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      border-top: 1px solid var(--cream-3);
+      background: var(--cream);
+    }
+
+    /* ─── BUTTONS ─── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid var(--cream-3);
+      background: #fff;
+      color: var(--ink-2);
+      transition: all .15s;
+      letter-spacing: .01em;
+    }
+
+    .btn:hover { border-color: var(--ink-3); background: var(--cream); }
+
+    .btn.primary {
+      background: var(--gold);
+      color: #fff;
+      border-color: var(--gold);
+    }
+
+    .btn.primary:hover { background: #A87840; border-color: #A87840; }
+
+    .btn.success {
+      background: var(--green);
+      color: #fff;
+      border-color: var(--green);
+    }
+
+    .btn.success:hover { background: #4A7A5A; }
+
+    .btn.danger-soft {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border-color: #F5C6C2;
+      padding: 5px 10px;
+      font-size: 11px;
+    }
+
+    .btn.danger-soft:hover { background: #FADBD8; }
+
+    /* ─── TABLE ─── */
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    thead th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--ink-4);
+      background: var(--cream);
+      border-bottom: 1px solid var(--cream-3);
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 11px 14px;
+      color: var(--ink-2);
+      border-bottom: 1px solid var(--cream-2);
+      vertical-align: middle;
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: var(--cream); }
+
+    /* ─── BADGE ─── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 9px;
+      border-radius: 99px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .03em;
+    }
+
+    .badge.green { background: var(--green-bg); color: var(--green); }
+    .badge.gold { background: var(--gold-bg); color: var(--gold); }
+    .badge.rose { background: var(--rose-bg); color: var(--rose); }
+    .badge.blue { background: var(--blue-bg); color: var(--blue); }
+    .badge.gray { background: var(--cream-2); color: var(--ink-3); }
+
+    /* ─── EMPTY STATE ─── */
+    .empty {
+      padding: 48px 24px;
+      text-align: center;
+      color: var(--ink-4);
+    }
+
+    .empty-icon {
+      font-size: 36px;
+      display: block;
+      margin-bottom: 10px;
+      opacity: .5;
+    }
+
+    .empty p { font-size: 13px; color: var(--ink-3); }
+
+    /* ─── PREVIEW BOX ─── */
+    .preview-box {
+      display: none;
+      margin: 0 22px 14px;
+      background: var(--green-bg);
+      border: 1px solid #C5E0CC;
+      border-radius: var(--radius);
+      padding: 14px 16px;
+    }
+
+    .preview-box.visible { display: block; }
+
+    .preview-title {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--green);
+      margin-bottom: 10px;
+    }
+
+    .preview-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(90,138,106,.12);
+    }
+
+    .preview-row:last-child { border-bottom: none; font-weight: 600; padding-top: 8px; }
+    .preview-row span:first-child { color: var(--ink-3); }
+    .preview-row span:last-child { font-weight: 500; }
+
+    /* ─── PERIODO TABS ─── */
+    .periodo-wrap {
+      display: flex;
+      gap: 0;
+      background: var(--cream-2);
+      border-radius: var(--radius);
+      padding: 3px;
+      width: fit-content;
+    }
+
+    .pt {
+      padding: 6px 16px;
+      border-radius: calc(var(--radius) - 3px);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink-3);
+      border: none;
+      background: none;
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .pt.active {
+      background: #fff;
+      color: var(--gold);
+      box-shadow: var(--shadow);
+    }
+
+    /* ─── PROGRESS BAR ─── */
+    .progress-wrap { margin-bottom: 18px; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; }
+    .progress-label span:first-child { color: var(--ink-3); }
+    .progress-label span:last-child { font-weight: 600; }
+    .progress-bar { height: 8px; background: var(--cream-2); border-radius: 99px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 99px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+    .progress-fill.gold { background: var(--gold); }
+    .progress-fill.green { background: var(--green); }
+    .progress-fill.rose { background: var(--rose); }
+
+    /* ─── DESGLOSE ─── */
+    .desglose { display: flex; flex-direction: column; gap: 0; }
+    .desglose-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 11px 22px;
+      border-bottom: 1px solid var(--cream-2);
+      font-size: 13px;
+    }
+
+    .desglose-row:last-child { border-bottom: none; }
+    .desglose-row.total {
+      background: var(--cream);
+      font-weight: 600;
+      font-size: 14px;
+      border-top: 2px solid var(--cream-3);
+    }
+
+    .desglose-row span:first-child { color: var(--ink-3); }
+    .desglose-row.total span:first-child { color: var(--ink); }
+
+    /* ─── GRID DOS COLS ─── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+    /* ─── MOBILE ─── */
+    .hamburger {
+      display: none;
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 100;
+      background: var(--gold);
+      border: none;
+      border-radius: 8px;
+      width: 38px; height: 38px;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 18px;
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.4);
+      z-index: 45;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); box-shadow: var(--shadow-lg); }
+      .main { margin-left: 0; }
+      .hamburger { display: flex; }
+      .overlay.open { display: block; }
+      .content { padding: 18px 16px; }
+      .topbar { padding: 14px 16px 14px 60px; }
+      .two-col { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .metrics { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ─── ANIMATIONS ─── */
+    @keyframes fadeIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform:none; } }
+    .section.active { animation: fadeIn .2s ease; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--cream-2); }
+    ::-webkit-scrollbar-thumb { background: var(--cream-3); border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--ink-4); }
+  </style>
+</head>
+<body>
+
+<button class="hamburger" id="hamburger" aria-label="Menú">&#9776;</button>
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<div class="layout">
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-name">Jasy</div>
+      <div class="brand-sub">Inventario &amp; Finanzas</div>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" onclick="showTab('productos', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z"/></svg>
+        Productos
+      </button>
+      <button class="nav-item" onclick="showTab('ventas', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        Ventas
+      </button>
+      <button class="nav-item" onclick="showTab('gastos', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Gastos fijos
+      </button>
+      <button class="nav-item" onclick="showTab('ganancias', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        Ganancias
+      </button>
+    </nav>
+    <div class="sidebar-footer">© 2025 Jasy Inventario</div>
+  </aside>
+
+  <!-- ═══ MAIN ═══ -->
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-title" id="topbar-title">Productos</div>
+      <div class="topbar-date" id="topbar-date"></div>
+    </header>
+
+    <div class="content">
+
+      <!-- ═══ PRODUCTOS ═══ -->
+      <div class="section active" id="tab-productos">
+        <div class="metrics">
+          <div class="mc accent">
+            <div class="mc-icon gold">🧵</div>
+            <div class="mc-label">Productos</div>
+            <div class="mc-value gold" id="mi-prod">0</div>
+          </div>
+          <div class="mc">
+            <div class="mc-icon blue">📦</div>
+            <div class="mc-label">Unidades en stock</div>
+            <div class="mc-value blue" id="mi-stock">0</div>
+          </div>
+          <div class="mc">
+            <div class="mc-icon rose">💰</div>
+            <div class="mc-label">Inversión total</div>
+            <div class="mc-value" id="mi-inv">$0</div>
+          </div>
+          <div class="mc success">
+            <div class="mc-icon green">🏷️</div>
+            <div class="mc-label">Valor a precio venta</div>
+            <div class="mc-value green" id="mi-val">$0</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Agregar nuevo producto</span>
+          </div>
+          <div class="form-grid">
+            <div class="form-group" style="grid-column:span 2">
+              <label>Nombre del producto</label>
+              <input type="text" id="p-nombre" placeholder="Ej: Blusa lino blanca talla M">
+            </div>
+            <div class="form-group">
+              <label>Categoría</label>
+              <select id="p-cat">
+                <option>Blusas</option><option>Pantalones</option><option>Vestidos</option>
+                <option>Faldas</option><option>Telas (metro)</option><option>Accesorios</option><option>Otro</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Unidades en stock</label>
+              <input type="number" id="p-stock" placeholder="0" min="0">
+            </div>
+            <div class="form-group">
+              <label>Precio de venta ($)</label>
+              <input type="number" id="p-precio" placeholder="0" min="0" step="100">
+            </div>
+          </div>
+          <div class="form-section-label">✦ Costos de producción por unidad</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Materiales / tela ($)</label>
+              <input type="number" id="p-mat" placeholder="0" min="0" step="100">
+            </div>
+            <div class="form-group">
+              <label>Mano de obra / empleadas ($)</label>
+              <input type="number" id="p-mo" placeholder="0" min="0" step="100">
+            </div>
+            <div class="form-group">
+              <label>Otros costos ($)</label>
+              <input type="number" id="p-otros" placeholder="Botones, cremallera, hilo…" min="0" step="100">
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn primary" onclick="agregarProducto()">+ Agregar producto</button>
+            <button class="btn" onclick="limpiarP()">Limpiar</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Inventario</span>
+            <span class="card-sub" id="inv-count">0 productos</span>
+          </div>
+          <div id="tabla-productos">
+            <div class="empty">
+              <span class="empty-icon">🧺</span>
+              <p>Agrega tu primer producto para comenzar</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ VENTAS ═══ -->
+      <div class="section" id="tab-ventas">
+        <div class="metrics">
+          <div class="mc success">
+            <div class="mc-icon green">📅</div>
+            <div class="mc-label">Ventas hoy</div>
+            <div class="mc-value green" id="v-hoy">$0</div>
+          </div>
+          <div class="mc">
+            <div class="mc-icon gold">📆</div>
+            <div class="mc-label">Esta semana</div>
+            <div class="mc-value gold" id="v-sem">$0</div>
+          </div>
+          <div class="mc">
+            <div class="mc-icon blue">🗓️</div>
+            <div class="mc-label">Este mes</div>
+            <div class="mc-value blue" id="v-mes">$0</div>
+          </div>
+          <div class="mc accent">
+            <div class="mc-icon rose">📊</div>
+            <div class="mc-label">Este año</div>
+            <div class="mc-value" id="v-año">$0</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">Registrar venta</span></div>
+          <div class="form-grid">
+            <div class="form-group" style="grid-column:span 2">
+              <label>Producto</label>
+              <select id="v-prod" onchange="actualizarPreview()">
+                <option value="">— selecciona un producto —</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Cantidad</label>
+              <input type="number" id="v-qty" placeholder="1" min="1" value="1" oninput="actualizarPreview()">
+            </div>
+            <div class="form-group">
+              <label>Precio de venta ($)</label>
+              <input type="number" id="v-precio" placeholder="Se llena automático" min="0" step="100" oninput="actualizarPreview()">
+            </div>
+          </div>
+
+          <div class="preview-box" id="venta-preview">
+            <div class="preview-title">✦ Vista previa de la venta</div>
+            <div class="preview-row"><span>Ingreso total</span><span id="vp-ing">$0</span></div>
+            <div class="preview-row"><span>Costo materiales</span><span id="vp-mat" style="color:var(--rose)"></span></div>
+            <div class="preview-row"><span>Costo empleadas</span><span id="vp-mo" style="color:var(--rose)"></span></div>
+            <div class="preview-row"><span>Otros costos</span><span id="vp-otros" style="color:var(--rose)"></span></div>
+            <div class="preview-row"><span>Ganancia bruta</span><span id="vp-gan" style="color:var(--green)"></span></div>
+            <div class="preview-row"><span>Margen</span><span id="vp-pct"></span></div>
+            <div class="preview-row"><span>Stock restante</span><span id="vp-stock"></span></div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn success" onclick="registrarVenta()">✓ Confirmar venta</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Historial de ventas</span>
+            <span class="card-sub" id="v-count">0 ventas</span>
+          </div>
+          <div id="tabla-ventas">
+            <div class="empty">
+              <span class="empty-icon">🛍️</span>
+              <p>Sin ventas registradas aún</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ GASTOS FIJOS ═══ -->
+      <div class="section" id="tab-gastos">
+        <div class="metrics">
+          <div class="mc danger">
+            <div class="mc-icon rose">👩‍💼</div>
+            <div class="mc-label">Empleadas / mes</div>
+            <div class="mc-value rose" id="gf-emp">$0</div>
+          </div>
+          <div class="mc">
+            <div class="mc-icon gold">🏪</div>
+            <div class="mc-label">Fijos empresa / mes</div>
+            <div class="mc-value" id="gf-emp2">$0</div>
+          </div>
+          <div class="mc">
+            <div class="mc-icon blue">🏠</div>
+            <div class="mc-label">Fijos propios / mes</div>
+            <div class="mc-value" id="gf-prop">$0</div>
+          </div>
+          <div class="mc danger">
+            <div class="mc-icon rose">💸</div>
+            <div class="mc-label">Total gastos / mes</div>
+            <div class="mc-value danger" id="gf-total">$0</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">Agregar gasto fijo</span></div>
+          <div class="form-grid">
+            <div class="form-group" style="grid-column:span 2">
+              <label>Descripción</label>
+              <input type="text" id="gf-desc" placeholder="Ej: Salario Ana, Arriendo local, Servicios…">
+            </div>
+            <div class="form-group">
+              <label>Categoría</label>
+              <select id="gf-tipo">
+                <option value="emp">Empleadas</option>
+                <option value="empresa">Gastos fijos empresa</option>
+                <option value="propios">Gastos fijos propios</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Monto mensual ($)</label>
+              <input type="number" id="gf-monto" placeholder="0" min="0" step="100">
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn primary" onclick="agregarGastoFijo()">+ Agregar gasto</button>
+            <button class="btn" onclick="limpiarGF()">Limpiar</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">Gastos fijos registrados</span></div>
+          <div id="tabla-gastos">
+            <div class="empty">
+              <span class="empty-icon">📋</span>
+              <p>Sin gastos fijos registrados</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ GANANCIAS ═══ -->
+      <div class="section" id="tab-ganancias">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+          <div class="periodo-wrap">
+            <button class="pt active" onclick="setPeriodo('dia',this)">Hoy</button>
+            <button class="pt" onclick="setPeriodo('semana',this)">Semana</button>
+            <button class="pt" onclick="setPeriodo('mes',this)">Mes</button>
+            <button class="pt" onclick="setPeriodo('año',this)">Año</button>
+          </div>
+          <div id="periodo-label" style="font-size:12px; color:var(--ink-4);"></div>
+        </div>
+
+        <div class="metrics">
+          <div class="mc info">
+            <div class="mc-icon blue">📈</div>
+            <div class="mc-label">Ingresos</div>
+            <div class="mc-value blue" id="g-ing">$0</div>
+          </div>
+          <div class="mc">
+            <div class="mc-icon gold">🧵</div>
+            <div class="mc-label">Costo producción</div>
+            <div class="mc-value" id="g-cprod">$0</div>
+          </div>
+          <div class="mc danger">
+            <div class="mc-icon rose">📌</div>
+            <div class="mc-label">Gastos fijos</div>
+            <div class="mc-value danger" id="g-gfijos">$0</div>
+          </div>
+          <div class="mc success">
+            <div class="mc-icon green">💵</div>
+            <div class="mc-label">Ganancia neta</div>
+            <div class="mc-value green" id="g-neta">$0</div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="card" style="padding:22px;">
+            <div class="card-title" style="margin-bottom:18px;">Márgenes de ganancia</div>
+            <div class="progress-wrap">
+              <div class="progress-label">
+                <span>Margen bruto (ventas vs costo prod.)</span>
+                <span id="pct-bruto">0%</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill gold" id="bar-bruto" style="width:0%"></div></div>
+            </div>
+            <div class="progress-wrap">
+              <div class="progress-label">
+                <span>Margen neto (todos los gastos)</span>
+                <span id="pct-neto">0%</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill green" id="bar-neto" style="width:0%"></div></div>
+            </div>
+            <div class="progress-wrap" style="margin-bottom:0">
+              <div class="progress-label">
+                <span>Inversión recuperada</span>
+                <span id="pct-recup">0%</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill rose" id="bar-recup" style="width:0%"></div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><span class="card-title">Desglose completo</span></div>
+            <div class="desglose">
+              <div class="desglose-row"><span>Ingresos por ventas</span><span id="d-ing" style="color:var(--blue)">$0</span></div>
+              <div class="desglose-row"><span>— Materiales / telas</span><span id="d-mat" style="color:var(--rose)">-$0</span></div>
+              <div class="desglose-row"><span>— Mano de obra</span><span id="d-mo" style="color:var(--rose)">-$0</span></div>
+              <div class="desglose-row"><span>— Otros costos prod.</span><span id="d-otros" style="color:var(--rose)">-$0</span></div>
+              <div class="desglose-row" style="background:var(--gold-bg)"><span style="color:var(--ink);font-weight:600">Ganancia bruta</span><span id="d-bruta" style="color:var(--gold);font-weight:600">$0</span></div>
+              <div class="desglose-row"><span>— Gastos empleadas</span><span id="d-gemp" style="color:var(--rose)">-$0</span></div>
+              <div class="desglose-row"><span>— Fijos empresa</span><span id="d-gemp2" style="color:var(--rose)">-$0</span></div>
+              <div class="desglose-row"><span>— Fijos propios</span><span id="d-gprop" style="color:var(--rose)">-$0</span></div>
+              <div class="desglose-row total"><span>Ganancia neta</span><span id="d-neta" style="color:var(--green)">$0</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+</div>
+
+<script>
+  // ─── STATE ───
+  let productos = [], ventas = [], gastosFijos = [], periodoActual = 'mes';
+
+  // ─── UTILS ───
+  const fmt = v => '$' + Math.round(Number(v) || 0).toLocaleString('es-CO');
+  const pct = (a, b) => b ? Math.round((a / b) * 100) : 0;
+  const clamp = v => Math.min(100, Math.max(0, v || 0));
+  const now = () => new Date();
+
+  // ─── TOPBAR DATE ───
+  function updateDate() {
+    const d = now();
+    const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('topbar-date').textContent = d.toLocaleDateString('es-CO', opts);
+  }
+  updateDate();
+
+  // ─── MOBILE SIDEBAR ───
+  document.getElementById('hamburger').onclick = () => {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('open');
+  };
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('open');
+  }
+
+  // ─── NAV ───
+  const titles = { productos: 'Productos', ventas: 'Ventas', gastos: 'Gastos fijos', ganancias: 'Ganancias' };
+
+  function showTab(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    if (btn) btn.classList.add('active');
+    document.getElementById('topbar-title').textContent = titles[id];
+    if (id === 'ventas') { actualizarVentasMetrics(); llenarSelectProductos(); }
+    if (id === 'ganancias') actualizarGanancias();
+    if (id === 'gastos') actualizarGastosFijosMetrics();
+    closeSidebar();
+  }
+
+  // ─── PRODUCTOS ───
+  function agregarProducto() {
+    const nombre = document.getElementById('p-nombre').value.trim();
+    const cat = document.getElementById('p-cat').value;
+    const stock = parseInt(document.getElementById('p-stock').value) || 0;
+    const precio = parseFloat(document.getElementById('p-precio').value) || 0;
+    const mat = parseFloat(document.getElementById('p-mat').value) || 0;
+    const mo = parseFloat(document.getElementById('p-mo').value) || 0;
+    const otros = parseFloat(document.getElementById('p-otros').value) || 0;
+    if (!nombre || precio <= 0) { alert('Ingresa nombre y precio de venta.'); return; }
+    const costo = mat + mo + otros;
+    productos.push({ id: Date.now(), nombre, cat, stock, precio, mat, mo, otros, costo });
+    limpiarP();
+    renderProductos();
+    actualizarInvMetrics();
+    llenarSelectProductos();
+  }
+
+  function limpiarP() {
+    ['p-nombre', 'p-stock', 'p-precio', 'p-mat', 'p-mo', 'p-otros'].forEach(i => document.getElementById(i).value = '');
+  }
+
+  function eliminarProducto(id) {
+    if (!confirm('¿Eliminar este producto?')) return;
+    productos = productos.filter(p => p.id !== id);
+    renderProductos(); actualizarInvMetrics(); llenarSelectProductos();
+  }
+
+  function renderProductos() {
+    const el = document.getElementById('tabla-productos');
+    document.getElementById('inv-count').textContent = productos.length + ' productos';
+    if (!productos.length) {
+      el.innerHTML = '<div class="empty"><span class="empty-icon">🧺</span><p>Agrega tu primer producto para comenzar</p></div>';
+      return;
+    }
+    el.innerHTML = `<div class="table-wrap"><table>
+      <thead><tr>
+        <th>Producto</th><th>Cat.</th><th>Stock</th>
+        <th>Precio venta</th><th>Mat.</th><th>M.O.</th><th>Otros</th><th>Costo total</th><th>Margen</th><th></th>
+      </tr></thead>
+      <tbody>${productos.map(p => {
+        const m = pct(p.precio - p.costo, p.precio);
+        const cls = m >= 40 ? 'green' : m >= 20 ? 'gold' : 'rose';
+        const stCls = p.stock <= 2 ? 'rose' : p.stock <= 5 ? 'gold' : 'green';
+        return `<tr>
+          <td style="font-weight:600;color:var(--ink)">${p.nombre}</td>
+          <td><span class="badge gray">${p.cat}</span></td>
+          <td><span class="badge ${stCls}">${p.stock} uds</span></td>
+          <td style="font-weight:600">${fmt(p.precio)}</td>
+          <td style="color:var(--ink-3)">${fmt(p.mat)}</td>
+          <td style="color:var(--ink-3)">${fmt(p.mo)}</td>
+          <td style="color:var(--ink-3)">${fmt(p.otros)}</td>
+          <td style="font-weight:500">${fmt(p.costo)}</td>
+          <td><span class="badge ${cls}">${m}%</span></td>
+          <td><button class="btn danger-soft" onclick="eliminarProducto(${p.id})">✕</button></td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>`;
+  }
+
+  function actualizarInvMetrics() {
+    document.getElementById('mi-prod').textContent = productos.length;
+    document.getElementById('mi-stock').textContent = productos.reduce((a, p) => a + p.stock, 0);
+    document.getElementById('mi-inv').textContent = fmt(productos.reduce((a, p) => a + p.costo * p.stock, 0));
+    document.getElementById('mi-val').textContent = fmt(productos.reduce((a, p) => a + p.precio * p.stock, 0));
+  }
+
+  // ─── VENTAS ───
+  function llenarSelectProductos() {
+    const sel = document.getElementById('v-prod');
+    const val = sel.value;
+    sel.innerHTML = '<option value="">— selecciona un producto —</option>' +
+      productos.filter(p => p.stock > 0)
+        .map(p => `<option value="${p.id}">${p.nombre} (stock: ${p.stock}) · ${fmt(p.precio)}</option>`).join('');
+    sel.value = val;
+  }
+
+  function actualizarPreview() {
+    const pid = parseInt(document.getElementById('v-prod').value);
+    const qty = parseInt(document.getElementById('v-qty').value) || 1;
+    const prod = productos.find(p => p.id === pid);
+    const preview = document.getElementById('venta-preview');
+    if (!prod) { preview.classList.remove('visible'); return; }
+    const pv = parseFloat(document.getElementById('v-precio').value) || prod.precio;
+    if (!document.getElementById('v-precio').value) document.getElementById('v-precio').value = prod.precio;
+    const ing = pv * qty;
+    const cmat = prod.mat * qty, cmo = prod.mo * qty, cotros = prod.otros * qty;
+    const costo = prod.costo * qty;
+    const gan = ing - costo;
+    document.getElementById('vp-ing').textContent = fmt(ing);
+    document.getElementById('vp-mat').textContent = '-' + fmt(cmat);
+    document.getElementById('vp-mo').textContent = '-' + fmt(cmo);
+    document.getElementById('vp-otros').textContent = '-' + fmt(cotros);
+    document.getElementById('vp-gan').textContent = fmt(gan);
+    document.getElementById('vp-pct').textContent = pct(gan, ing) + '%';
+    document.getElementById('vp-stock').textContent = (prod.stock - qty) + ' unidades quedan';
+    preview.classList.add('visible');
+  }
+
+  function registrarVenta() {
+    const pid = parseInt(document.getElementById('v-prod').value);
+    const qty = parseInt(document.getElementById('v-qty').value) || 1;
+    const prod = productos.find(p => p.id === pid);
+    if (!prod) { alert('Selecciona un producto.'); return; }
+    const pv = parseFloat(document.getElementById('v-precio').value) || prod.precio;
+    if (qty > prod.stock) { alert(`Stock insuficiente. Solo hay ${prod.stock} unidades.`); return; }
+    prod.stock -= qty;
+    ventas.push({
+      id: Date.now(), fecha: now().toISOString(),
+      prodId: pid, prodNombre: prod.nombre,
+      qty, precioVenta: pv,
+      mat: prod.mat, mo: prod.mo, otros: prod.otros, costo: prod.costo,
+      ingreso: pv * qty, costoTotal: prod.costo * qty,
+      ganancia: (pv - prod.costo) * qty
+    });
+    document.getElementById('v-prod').value = '';
+    document.getElementById('v-qty').value = '1';
+    document.getElementById('v-precio').value = '';
+    document.getElementById('venta-preview').classList.remove('visible');
+    renderProductos(); actualizarInvMetrics(); llenarSelectProductos();
+    actualizarVentasMetrics(); renderVentas();
+  }
+
+  function renderVentas() {
+    const el = document.getElementById('tabla-ventas');
+    document.getElementById('v-count').textContent = ventas.length + ' ventas';
+    if (!ventas.length) {
+      el.innerHTML = '<div class="empty"><span class="empty-icon">🛍️</span><p>Sin ventas registradas aún</p></div>';
+      return;
+    }
+    el.innerHTML = `<div class="table-wrap"><table>
+      <thead><tr><th>Fecha</th><th>Producto</th><th>Cant.</th><th>P. Venta</th><th>Mat.</th><th>M.O.</th><th>Otros</th><th>Ganancia</th><th>Margen</th></tr></thead>
+      <tbody>${[...ventas].reverse().map(v => {
+        const d = new Date(v.fecha);
+        const f = d.toLocaleDateString('es-CO', { day: '2-digit', month: 'short' }) + ' ' +
+                  d.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+        const m = pct(v.ganancia, v.ingreso);
+        return `<tr>
+          <td style="color:var(--ink-4);font-size:11px;white-space:nowrap">${f}</td>
+          <td style="font-weight:600">${v.prodNombre}</td>
+          <td>${v.qty}</td>
+          <td style="font-weight:500">${fmt(v.precioVenta)}</td>
+          <td style="color:var(--rose)">${fmt(v.mat * v.qty)}</td>
+          <td style="color:var(--rose)">${fmt(v.mo * v.qty)}</td>
+          <td style="color:var(--rose)">${fmt(v.otros * v.qty)}</td>
+          <td style="font-weight:600;color:var(--green)">${fmt(v.ganancia)}</td>
+          <td><span class="badge ${m >= 40 ? 'green' : m >= 20 ? 'gold' : 'rose'}">${m}%</span></td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>`;
+  }
+
+  function ventasDePeriodo(periodo) {
+    const ahora = now();
+    return ventas.filter(v => {
+      const d = new Date(v.fecha);
+      if (periodo === 'dia') return d.toDateString() === ahora.toDateString();
+      if (periodo === 'semana') {
+        const ini = new Date(ahora); ini.setDate(ahora.getDate() - ahora.getDay()); ini.setHours(0, 0, 0, 0);
+        return d >= ini;
+      }
+      if (periodo === 'mes') return d.getMonth() === ahora.getMonth() && d.getFullYear() === ahora.getFullYear();
+      if (periodo === 'año') return d.getFullYear() === ahora.getFullYear();
+      return true;
+    });
+  }
+
+  function actualizarVentasMetrics() {
+    const ids = { dia: 'v-hoy', semana: 'v-sem', mes: 'v-mes', año: 'v-año' };
+    ['dia', 'semana', 'mes', 'año'].forEach(p => {
+      const total = ventasDePeriodo(p).reduce((a, v) => a + v.ingreso, 0);
+      document.getElementById(ids[p]).textContent = fmt(total);
+    });
+  }
+
+  // ─── GASTOS FIJOS ───
+  function agregarGastoFijo() {
+    const desc = document.getElementById('gf-desc').value.trim();
+    const tipo = document.getElementById('gf-tipo').value;
+    const monto = parseFloat(document.getElementById('gf-monto').value) || 0;
+    if (!desc || monto <= 0) { alert('Ingresa descripción y monto.'); return; }
+    gastosFijos.push({ id: Date.now(), desc, tipo, monto });
+    limpiarGF(); renderGastosFijos(); actualizarGastosFijosMetrics();
+  }
+
+  function limpiarGF() { ['gf-desc', 'gf-monto'].forEach(i => document.getElementById(i).value = ''); }
+
+  function eliminarGastoFijo(id) {
+    if (!confirm('¿Eliminar este gasto?')) return;
+    gastosFijos = gastosFijos.filter(g => g.id !== id);
+    renderGastosFijos(); actualizarGastosFijosMetrics();
+  }
+
+  function renderGastosFijos() {
+    const el = document.getElementById('tabla-gastos');
+    const tl = { emp: 'Empleadas', empresa: 'Empresa', propios: 'Propios' };
+    const tc = { emp: 'rose', empresa: 'gold', propios: 'blue' };
+    if (!gastosFijos.length) {
+      el.innerHTML = '<div class="empty"><span class="empty-icon">📋</span><p>Sin gastos fijos registrados</p></div>';
+      return;
+    }
+    el.innerHTML = `<div class="table-wrap"><table>
+      <thead><tr><th>Descripción</th><th>Categoría</th><th>Mensual</th><th>Anual</th><th></th></tr></thead>
+      <tbody>${gastosFijos.map(g => `<tr>
+        <td style="font-weight:600">${g.desc}</td>
+        <td><span class="badge ${tc[g.tipo]}">${tl[g.tipo]}</span></td>
+        <td style="font-weight:500">${fmt(g.monto)}</td>
+        <td style="color:var(--ink-3)">${fmt(g.monto * 12)}</td>
+        <td><button class="btn danger-soft" onclick="eliminarGastoFijo(${g.id})">✕</button></td>
+      </tr>`).join('')}</tbody>
+    </table></div>`;
+  }
+
+  function actualizarGastosFijosMetrics() {
+    const sum = t => gastosFijos.filter(g => g.tipo === t).reduce((a, g) => a + g.monto, 0);
+    const emp = sum('emp'), e2 = sum('empresa'), prop = sum('propios');
+    document.getElementById('gf-emp').textContent = fmt(emp);
+    document.getElementById('gf-emp2').textContent = fmt(e2);
+    document.getElementById('gf-prop').textContent = fmt(prop);
+    document.getElementById('gf-total').textContent = fmt(emp + e2 + prop);
+  }
+
+  // ─── GANANCIAS ───
+  function setPeriodo(p, btn) {
+    periodoActual = p;
+    document.querySelectorAll('.pt').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    actualizarGanancias();
+  }
+
+  function actualizarGanancias() {
+    const vp = ventasDePeriodo(periodoActual);
+    const ingresos = vp.reduce((a, v) => a + v.ingreso, 0);
+    const cmat = vp.reduce((a, v) => a + v.mat * v.qty, 0);
+    const cmo = vp.reduce((a, v) => a + v.mo * v.qty, 0);
+    const cotros = vp.reduce((a, v) => a + v.otros * v.qty, 0);
+    const cprod = cmat + cmo + cotros;
+    const ganBruta = ingresos - cprod;
+    const totalMes = gastosFijos.reduce((a, g) => a + g.monto, 0);
+    const f = { dia: 1 / 30, semana: 7 / 30, mes: 1, año: 12 }[periodoActual] || 1;
+    const gEmp = gastosFijos.filter(g => g.tipo === 'emp').reduce((a, g) => a + g.monto, 0) * f;
+    const gEmp2 = gastosFijos.filter(g => g.tipo === 'empresa').reduce((a, g) => a + g.monto, 0) * f;
+    const gProp = gastosFijos.filter(g => g.tipo === 'propios').reduce((a, g) => a + g.monto, 0) * f;
+    const gFijos = totalMes * f;
+    const neta = ganBruta - gFijos;
+    const invTotal = productos.reduce((a, p) => a + p.costo * (p.stock + vp.filter(v => v.prodId === p.id).reduce((x, v) => x + v.qty, 0)), 0);
+
+    const etiqueta = { dia: 'Hoy · ' + now().toLocaleDateString('es-CO', { day: 'numeric', month: 'long' }), semana: 'Esta semana', mes: now().toLocaleDateString('es-CO', { month: 'long', year: 'numeric' }), año: now().getFullYear().toString() };
+    document.getElementById('periodo-label').textContent = etiqueta[periodoActual] || '';
+
+    document.getElementById('g-ing').textContent = fmt(ingresos);
+    document.getElementById('g-cprod').textContent = fmt(cprod);
+    document.getElementById('g-gfijos').textContent = fmt(gFijos);
+    document.getElementById('g-neta').textContent = fmt(neta);
+    document.getElementById('g-neta').className = 'mc-value ' + (neta >= 0 ? 'green' : 'danger');
+
+    const pB = clamp(pct(ganBruta, ingresos));
+    const pN = clamp(pct(Math.max(0, neta), ingresos));
+    const pR = clamp(pct(ingresos, invTotal));
+
+    document.getElementById('pct-bruto').textContent = pB + '%';
+    document.getElementById('bar-bruto').style.width = pB + '%';
+    document.getElementById('pct-neto').textContent = pct(neta, ingresos) + '%';
+    document.getElementById('bar-neto').style.width = pN + '%';
+    document.getElementById('bar-neto').className = 'progress-fill ' + (neta >= 0 ? 'green' : 'rose');
+    document.getElementById('pct-recup').textContent = pR + '%';
+    document.getElementById('bar-recup').style.width = pR + '%';
+
+    document.getElementById('d-ing').textContent = fmt(ingresos);
+    document.getElementById('d-mat').textContent = '-' + fmt(cmat);
+    document.getElementById('d-mo').textContent = '-' + fmt(cmo);
+    document.getElementById('d-otros').textContent = '-' + fmt(cotros);
+    document.getElementById('d-bruta').textContent = fmt(ganBruta);
+    document.getElementById('d-bruta').style.color = ganBruta >= 0 ? 'var(--gold)' : 'var(--rose)';
+    document.getElementById('d-gemp').textContent = '-' + fmt(gEmp);
+    document.getElementById('d-gemp2').textContent = '-' + fmt(gEmp2);
+    document.getElementById('d-gprop').textContent = '-' + fmt(gProp);
+    document.getElementById('d-neta').textContent = fmt(neta);
+    document.getElementById('d-neta').style.color = neta >= 0 ? 'var(--green)' : 'var(--danger)';
+  }
+
+  // ─── INIT ───
+  renderProductos(); actualizarInvMetrics(); actualizarVentasMetrics(); actualizarGastosFijosMetrics();
+</script>
+</body>
+</html>
