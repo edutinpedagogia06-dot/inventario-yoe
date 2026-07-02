@@ -227,14 +227,16 @@ tbody tr:hover td{background:var(--violet-bg);color:var(--text)}
 .overlay.open{display:block}
 
 /* MOBILE BOTTOM NAV */
-.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);z-index:60;padding-bottom:env(safe-area-inset-bottom,0px)}
-.mobile-nav-inner{display:flex}
-.mob-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 2px 7px;border:none;background:none;color:var(--text3);font-size:9px;font-weight:600;cursor:pointer;gap:3px;transition:color .15s;position:relative;text-transform:uppercase;letter-spacing:.04em;-webkit-tap-highlight-color:transparent}
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);z-index:60;padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:0 -4px 20px rgba(0,0,0,.15)}
+.mobile-nav-inner{display:flex;width:100%;justify-content:space-around;align-items:stretch}
+.mob-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px 8px;border:none;background:none;color:var(--text3);font-size:9px;font-weight:600;cursor:pointer;gap:4px;transition:all .15s;position:relative;text-transform:uppercase;letter-spacing:.03em;-webkit-tap-highlight-color:transparent;min-width:0}
 .mob-btn.active{color:var(--violet2)}
-.mob-btn.active::after{content:'';position:absolute;top:0;left:25%;right:25%;height:2px;background:var(--violet);border-radius:0 0 3px 3px}
-.mob-btn svg{width:19px;height:19px;opacity:.65}
-.mob-btn.active svg{opacity:1}
-.mob-badge{position:absolute;top:4px;right:calc(50% - 18px);background:var(--danger);color:#fff;font-size:8px;font-weight:700;border-radius:99px;padding:0 4px;min-width:14px;text-align:center;line-height:15px}
+.mob-btn.active::after{content:'';position:absolute;top:0;left:20%;right:20%;height:2.5px;background:var(--violet);border-radius:0 0 4px 4px}
+.mob-btn svg{width:22px;height:22px;opacity:.6;transition:opacity .15s,transform .15s}
+.mob-btn.active svg{opacity:1;transform:translateY(-1px)}
+.mob-btn:active svg{transform:scale(.88)}
+.mob-btn span{font-size:9px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:52px;text-align:center}
+.mob-badge{position:absolute;top:6px;left:calc(50% + 4px);background:var(--danger);color:#fff;font-size:8px;font-weight:700;border-radius:99px;padding:1px 5px;min-width:15px;text-align:center;line-height:13px;border:1.5px solid var(--bg2)}
 
 
 /* HISTORIAL */
@@ -308,7 +310,7 @@ tbody tr:hover td{background:var(--violet-bg);color:var(--text)}
   .main{margin-left:0}
   .hamburger{display:flex}
   .mobile-nav{display:flex}
-  .content{padding:14px 13px 82px}
+  .content{padding:14px 13px 90px}
   .topbar{padding:11px 13px 11px 55px}
   .two-col,.charts-grid{grid-template-columns:1fr}
   .chart-full{grid-column:span 1}
@@ -729,28 +731,28 @@ tbody tr:hover td{background:var(--violet-bg);color:var(--text)}
   <div class="mobile-nav-inner">
     <button class="mob-btn active" onclick="showTabMob('productos',this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z"/></svg>
-      Inv.
+      <span>Inventario</span>
     </button>
     <button class="mob-btn" onclick="showTabMob('ventas',this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-      Ventas
+      <span>Ventas</span>
     </button>
     <button class="mob-btn" onclick="showTabMob('ganancias',this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
-      Ganancias
+      <span>Ganancias</span>
     </button>
-    <button class="mob-btn" onclick="showTabMob('estadisticas',this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="4" height="18" rx="1"/><rect x="10" y="8" width="4" height="13" rx="1"/><rect x="18" y="13" width="4" height="8" rx="1"/></svg>
-      Stats
+    <button class="mob-btn" onclick="showTabMob('historial',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span>Historial</span>
     </button>
     <button class="mob-btn" onclick="showTabMob('alertas',this)">
       <span class="mob-badge" id="mob-badge" style="display:none">0</span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
-      Alertas
+      <span>Alertas</span>
     </button>
     <button class="mob-btn" id="mob-more-btn" onclick="openMoreMenu()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
-      Más
+      <span>Más</span>
     </button>
   </div>
 </nav>
