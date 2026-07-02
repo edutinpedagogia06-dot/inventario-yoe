@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
 <title>Jasy Inventario</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%237C5CFC'/%3E%3Cstop offset='100%25' stop-color='%232DD4BF'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='22' fill='url(%23g)'/%3E%3Crect x='44' y='18' width='8' height='52' rx='4' fill='white' opacity='.95'/%3E%3Cellipse cx='48' cy='72' rx='4' ry='7' fill='white' opacity='.95'/%3E%3Cellipse cx='48' cy='24' rx='4.5' ry='6.5' fill='url(%23g)'/%3E%3Cpath d='M48 24 Q68 33 70 50 Q72 64 60 72' fill='none' stroke='white' stroke-width='4' stroke-linecap='round' opacity='.9'/%3E%3Cpath d='M60 72 Q50 80 38 76 Q28 72 27 62' fill='none' stroke='rgba(255,255,255,.55)' stroke-width='3' stroke-linecap='round' stroke-dasharray='5 4'/%3E%3Ccircle cx='22' cy='22' r='4' fill='white' opacity='.35'/%3E%3C/svg%3E"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
@@ -101,7 +102,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px;padding:14px 18px}
 .form-group{display:flex;flex-direction:column;gap:4px}
 label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em}
-input[type=text],input[type=number],select,textarea{padding:8px 10px;border:1px solid var(--border2);border-radius:var(--r);background:var(--input-bg);color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;width:100%;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none}
+input[type=text],input[type=number],select,textarea{padding:8px 10px;border:1px solid var(--border2);border-radius:var(--r);background:var(--input-bg);color:var(--text);font-size:16px;font-family:'DM Sans',sans-serif;outline:none;width:100%;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none}
 input:focus,select:focus,textarea:focus{border-color:var(--violet);box-shadow:0 0 0 3px var(--violet-glow)}
 input::placeholder,textarea::placeholder{color:var(--text3)}
 select option{background:var(--input-bg);color:var(--text)}
@@ -240,6 +241,31 @@ tbody tr:hover td{background:var(--violet-bg);color:var(--text)}
 ::-webkit-scrollbar-track{background:var(--bg2)}
 ::-webkit-scrollbar-thumb{background:var(--surface2);border-radius:99px}
 
+/* MÁS MENÚ MÓVIL */
+.more-menu-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:70;align-items:flex-end;justify-content:center}
+.more-menu-backdrop.open{display:flex}
+.more-menu{background:var(--bg2);border-radius:20px 20px 0 0;padding:12px 0 calc(16px + env(safe-area-inset-bottom,0px));width:100%;max-width:480px;border-top:1px solid var(--border)}
+.more-menu-handle{width:36px;height:4px;background:var(--border2);border-radius:99px;margin:0 auto 16px;cursor:pointer}
+.more-menu-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:0 20px 10px}
+.more-menu-item{display:flex;align-items:center;gap:12px;padding:13px 20px;cursor:pointer;transition:background .15s;border:none;background:none;width:100%;text-align:left;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500}
+.more-menu-item:hover,.more-menu-item:active{background:var(--violet-bg);color:var(--violet2)}
+.more-menu-item svg{width:20px;height:20px;flex-shrink:0;opacity:.7}
+.more-menu-item:hover svg,.more-menu-item:active svg{opacity:1}
+.more-menu-sep{height:1px;background:var(--border);margin:4px 0}
+
+/* MOBILE CARD ADJUSTMENTS */
+@media(max-width:900px){
+  .preview-grid{grid-template-columns:1fr}
+  .form-actions{padding:10px 14px}
+  .card-header{padding:11px 14px}
+  .form-grid{padding:12px 14px;gap:10px}
+  .fsl{padding:7px 14px}
+  .desglose-row{padding:9px 14px}
+  .mc{padding:13px 14px}
+  .metrics{grid-template-columns:1fr 1fr}
+  select{font-size:16px}
+}
+
 /* RESPONSIVE */
 @media(max-width:900px){
   .sidebar{transform:translateX(-100%)}
@@ -263,6 +289,11 @@ tbody tr:hover td{background:var(--violet-bg);color:var(--text)}
   .kpi-strip{grid-template-columns:1fr 1fr}
   .kpi-item:nth-child(2n){border-right:none}
   .kpi-item{border-bottom:1px solid var(--border)}
+  .metrics{grid-template-columns:1fr 1fr}
+  .mc-value{font-size:16px}
+  .mc-label{font-size:9px}
+  .topbar-pill{display:none}
+  .two-col{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -277,7 +308,18 @@ tbody tr:hover td{background:var(--violet-bg);color:var(--text)}
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
   <div class="sb-brand">
-    <div class="brand-logo"><div class="brand-dot">✦</div><div class="brand-name">Jasy</div></div>
+    <div class="brand-logo"><div class="brand-dot" style="background:none;padding:0;overflow:hidden">
+      <svg viewBox="0 0 100 100" width="30" height="30" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#7C5CFC"/><stop offset="100%" stop-color="#2DD4BF"/></linearGradient></defs>
+        <rect width="100" height="100" rx="22" fill="url(#lg)"/>
+        <rect x="44" y="18" width="8" height="52" rx="4" fill="white" opacity=".95"/>
+        <ellipse cx="48" cy="72" rx="4" ry="7" fill="white" opacity=".95"/>
+        <ellipse cx="48" cy="24" rx="4.5" ry="6.5" fill="url(#lg)"/>
+        <path d="M48 24 Q68 33 70 50 Q72 64 60 72" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" opacity=".9"/>
+        <path d="M60 72 Q50 80 38 76 Q28 72 27 62" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 4"/>
+        <circle cx="22" cy="22" r="4" fill="white" opacity=".35"/>
+      </svg>
+    </div><div class="brand-name">Jasy</div></div>
     <div class="brand-sub">Inventario & Finanzas</div>
   </div>
   <nav class="sb-nav">
@@ -623,6 +665,10 @@ tbody tr:hover td{background:var(--violet-bg);color:var(--text)}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
       Alertas
     </button>
+    <button class="mob-btn" id="mob-more-btn" onclick="openMoreMenu()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+      Más
+    </button>
   </div>
 </nav>
 
@@ -705,6 +751,7 @@ function showTabMob(id,btn){
   document.querySelectorAll('.mob-btn').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
   showTab(id);
+  closeMoreMenu();
 }
 
 // ── MARGEN EN VIVO (form producto) ──
@@ -1242,6 +1289,29 @@ function borrarTodo(){
   toast('Todos los datos fueron borrados','warning',4000);
 }
 
+// ── MÁS MENÚ MÓVIL ──
+function openMoreMenu(){
+  document.getElementById('more-menu-backdrop').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeMoreMenu(){
+  document.getElementById('more-menu-backdrop').classList.remove('open');
+  document.body.style.overflow='';
+  // quitar active del botón Más
+  document.querySelectorAll('.mob-btn').forEach(b=>b.classList.remove('active'));
+  // restaurar el tab activo en móvil
+  const activeSection = document.querySelector('.section.active');
+  if(activeSection){
+    const id = activeSection.id.replace('tab-','');
+    const mobBtn = document.querySelector('.mob-btn[onclick*=\"'"+id+"\'\"]');
+    if(mobBtn) mobBtn.classList.add('active');
+  }
+}
+function moreNav(id){
+  closeMoreMenu();
+  showTab(id);
+}
+
 // ── INIT ──
 cargar();
 renderProductos();actualizarInvMetrics();
@@ -1249,5 +1319,22 @@ llenarSelect();renderVentas();actualizarVentasMetrics();
 renderGastosFijos();actualizarGastosFijosMetrics();
 actualizarBadgeAlertas();
 </script>
+<!-- MÁS MENÚ MÓVIL -->
+<div class="more-menu-backdrop" id="more-menu-backdrop" onclick="closeMoreMenu()">
+  <div class="more-menu" onclick="event.stopPropagation()">
+    <div class="more-menu-handle" onclick="closeMoreMenu()"></div>
+    <div class="more-menu-title">Más opciones</div>
+    <button class="more-menu-item" onclick="moreNav('gastos')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Gastos fijos
+    </button>
+    <div class="more-menu-sep"></div>
+    <button class="more-menu-item" onclick="moreNav('datos')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0018 9h-1.26A8 8 0 103 16.29"/></svg>
+      Importar / Exportar
+    </button>
+  </div>
+</div>
+
 </body>
 </html>
