@@ -273,6 +273,35 @@ tbody tr:hover td{background:var(--violet-bg);color:var(--text)}
 .filter-chip.producto.active{background:var(--violet);color:#fff;border-color:var(--violet)}
 .hist-count{font-size:11px;color:var(--text3);margin-left:auto}
 
+
+/* LOGIN SCREEN */
+.login-screen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-screen.hidden{display:none}
+.login-card{background:var(--card-bg);border:1px solid var(--border);border-radius:24px;padding:40px 36px;width:100%;max-width:380px;display:flex;flex-direction:column;align-items:center;gap:0;box-shadow:var(--shadow-lg)}
+.login-logo{width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,var(--violet),var(--emerald));display:flex;align-items:center;justify-content:center;margin-bottom:20px;box-shadow:0 8px 24px var(--violet-glow)}
+.login-logo svg{width:44px;height:44px}
+.login-brand{font-family:'DM Serif Display',serif;font-size:28px;color:var(--text);margin-bottom:4px;letter-spacing:-.5px}
+.login-sub{font-size:12px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:32px}
+.login-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;align-self:flex-start;margin-bottom:6px;width:100%}
+.login-input-wrap{position:relative;width:100%;margin-bottom:8px}
+.login-input{width:100%;padding:13px 44px 13px 16px;border:1.5px solid var(--border2);border-radius:var(--rl);background:var(--input-bg);color:var(--text);font-size:16px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s,box-shadow .15s;letter-spacing:.05em}
+.login-input:focus{border-color:var(--violet);box-shadow:0 0 0 3px var(--violet-glow)}
+.login-eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);padding:4px;display:flex;align-items:center;justify-content:center;transition:color .15s}
+.login-eye:hover{color:var(--text)}
+.login-error{font-size:12px;color:var(--danger);margin-bottom:16px;min-height:18px;text-align:center;width:100%;display:none}
+.login-error.visible{display:block}
+.login-btn{width:100%;padding:13px;border-radius:var(--rl);background:var(--violet);color:#fff;font-size:15px;font-weight:700;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px;transition:all .15s;box-shadow:0 4px 16px var(--violet-glow);letter-spacing:.02em}
+.login-btn:hover{background:var(--violet2);transform:translateY(-1px);box-shadow:0 6px 20px var(--violet-glow)}
+.login-btn:active{transform:scale(.97)}
+.login-btn.shake{animation:shake .4s ease}
+.login-footer{font-size:10px;color:var(--text3);margin-top:24px;text-align:center}
+.login-dots{display:flex;gap:6px;justify-content:center;margin-top:16px}
+.login-dot{width:8px;height:8px;border-radius:50%;background:var(--border2);transition:all .2s}
+.login-dot.filled{background:var(--violet);transform:scale(1.2)}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+@keyframes loginFadeOut{to{opacity:0;transform:scale(1.04)}}
+.login-screen.fade-out{animation:loginFadeOut .35s ease forwards}
+
 /* SCROLLBAR */
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:var(--bg2)}
@@ -337,6 +366,61 @@ tbody tr:hover td{background:var(--violet-bg);color:var(--text)}
 <body>
 
 <div id="toast-container"></div>
+
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="llg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#7C5CFC"/><stop offset="100%" stop-color="#2DD4BF"/></linearGradient></defs>
+        <rect x="44" y="18" width="8" height="52" rx="4" fill="white" opacity=".95"/>
+        <ellipse cx="48" cy="72" rx="4" ry="7" fill="white" opacity=".95"/>
+        <ellipse cx="48" cy="24" rx="4.5" ry="6.5" fill="url(#llg)"/>
+        <path d="M48 24 Q68 33 70 50 Q72 64 60 72" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" opacity=".9"/>
+        <path d="M60 72 Q50 80 38 76 Q28 72 27 62" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 4"/>
+        <circle cx="22" cy="22" r="4" fill="white" opacity=".35"/>
+      </svg>
+    </div>
+    <div class="login-brand">Jasy</div>
+    <div class="login-sub">Inventario & Finanzas</div>
+
+    <div class="login-label">Contraseña</div>
+    <div class="login-input-wrap">
+      <input
+        class="login-input"
+        type="password"
+        id="login-password"
+        placeholder="••••••••"
+        autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')intentarLogin()"
+        oninput="onPasswordInput()"
+        maxlength="20"
+      />
+      <button class="login-eye" onclick="toggleLoginEye()" id="login-eye-btn" title="Mostrar/ocultar">
+        <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
+
+    <div class="login-dots" id="login-dots">
+      <div class="login-dot" id="dot-0"></div>
+      <div class="login-dot" id="dot-1"></div>
+      <div class="login-dot" id="dot-2"></div>
+      <div class="login-dot" id="dot-3"></div>
+      <div class="login-dot" id="dot-4"></div>
+      <div class="login-dot" id="dot-5"></div>
+      <div class="login-dot" id="dot-6"></div>
+      <div class="login-dot" id="dot-7"></div>
+    </div>
+
+    <div class="login-error" id="login-error">Contraseña incorrecta. Intenta de nuevo.</div>
+
+    <button class="login-btn" id="login-btn" onclick="intentarLogin()">Entrar</button>
+
+    <div class="login-footer">🔒 Acceso privado · Jasy 2025</div>
+  </div>
+</div>
+
+
 <button class="hamburger" id="hamburger" aria-label="Menú">☰</button>
 <div class="overlay" id="overlay"></div>
 
@@ -1392,6 +1476,90 @@ function borrarTodo(){
   actualizarBadgeAlertas();actualizarSavedStats();
   toast('Todos los datos fueron borrados','warning',4000);
 }
+
+
+
+// ── LOGIN ──
+const PASS = 'jasy2024';
+let loginIntentos = 0;
+
+function checkSession(){
+  const session = sessionStorage.getItem('jasy-auth');
+  if(session === 'ok'){
+    document.getElementById('login-screen').classList.add('hidden');
+  }
+}
+
+function intentarLogin(){
+  const input = document.getElementById('login-password');
+  const val = input.value;
+  const errorEl = document.getElementById('login-error');
+  const btn = document.getElementById('login-btn');
+
+  if(val === PASS){
+    sessionStorage.setItem('jasy-auth','ok');
+    const screen = document.getElementById('login-screen');
+    screen.classList.add('fade-out');
+    setTimeout(()=>screen.classList.add('hidden'), 350);
+    errorEl.classList.remove('visible');
+  } else {
+    loginIntentos++;
+    errorEl.classList.add('visible');
+    btn.classList.add('shake');
+    input.value = '';
+    updateDots(0);
+    setTimeout(()=>btn.classList.remove('shake'), 400);
+
+    if(loginIntentos >= 5){
+      btn.disabled = true;
+      btn.textContent = 'Espera 30 segundos...';
+      errorEl.textContent = 'Demasiados intentos. Espera 30 segundos.';
+      setTimeout(()=>{
+        btn.disabled = false;
+        btn.textContent = 'Entrar';
+        loginIntentos = 0;
+        errorEl.textContent = 'Contraseña incorrecta. Intenta de nuevo.';
+      }, 30000);
+    }
+  }
+}
+
+function onPasswordInput(){
+  const val = document.getElementById('login-password').value;
+  const errorEl = document.getElementById('login-error');
+  errorEl.classList.remove('visible');
+  updateDots(val.length);
+}
+
+function updateDots(len){
+  for(let i=0;i<8;i++){
+    const dot = document.getElementById('dot-'+i);
+    if(dot) dot.className = 'login-dot' + (i < len ? ' filled' : '');
+  }
+}
+
+function toggleLoginEye(){
+  const input = document.getElementById('login-password');
+  const icon = document.getElementById('eye-icon');
+  if(input.type === 'password'){
+    input.type = 'text';
+    icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+  } else {
+    input.type = 'password';
+    icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+  }
+}
+
+// Verificar sesión al cargar
+checkSession();
+
+// Enfocar input automáticamente
+window.addEventListener('load', function(){
+  const screen = document.getElementById('login-screen');
+  if(!screen.classList.contains('hidden')){
+    setTimeout(()=>document.getElementById('login-password').focus(), 100);
+  }
+});
 
 
 // ── HISTORIAL ──
